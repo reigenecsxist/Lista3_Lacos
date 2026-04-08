@@ -1,16 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- */
-
 package com.mycompany.sistema_bancario;
 
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
-/**
- *
- * @author Usuário do Windows
- */
 public class Sistema_Bancario {
 
     public Sistema_Bancario() {
@@ -20,10 +12,20 @@ public class Sistema_Bancario {
         String saldoMostrado="0.00", textoVisuSaldo="Esconder saldo";
         int opcao=0;
         ArrayList<Transferencia> registro = new ArrayList<>();
+        ArrayList<Transacao> extrato = new ArrayList<>();
+        ArrayList<Conta> contas = new ArrayList<>();
+        
         
         do{
-            opcao = Integer.parseInt(JOptionPane.showInputDialog("BANCO GMM\n\nSaldo: "+saldoMostrado+"\n\n\t1 - Depósito\n\t2 - Saque\n\t3 - Transferência\n4 - "
-                    +textoVisuSaldo+ "\n\n\t0 - Sair\n\nQual serviço deseja realizar?"));
+            opcao = Integer.parseInt(JOptionPane.showInputDialog("BANCO GMM\n\n"
+                + "Saldo: "+saldoMostrado+"\n\n\t"
+                + "1 - Depósito\n\t"
+                + "2 - Saque\n\t"
+                + "3 - Extrato\n"
+                + "4 - Transferências\n\t"
+                + "5 - "+textoVisuSaldo+"\n\n\t"
+                + "0 - Sair\n\n"
+                + "Qual serviço deseja realizar?"));
             
             switch(opcao){
                 case 0:
@@ -38,17 +40,25 @@ public class Sistema_Bancario {
                     else saldo -= saque;
                     saldoMostrado = ""+saldo;
                     break;
+                
                 case 3:
+                    
+                    break;
+                
+                case 4:
                     int opcaoTf = 0;
                     
                     do{
                         
-                        opcaoTf = Integer.parseInt(JOptionPane.showInputDialog("\tTranferências\n\n\t1 - Realizar transferência\n\t2 - Ver registro de transferências"
-                                + "\n\t0 - Sair\n\n\tQual serviço deseja realizar?"));
+                        opcaoTf = Integer.parseInt(JOptionPane.showInputDialog("\tTranferências\n\n\t"
+                                + "1 - Realizar transferência\n\t"
+                                + "2 - Ver registro de transferências\n\t"
+                                + "0 - Voltar"
+                                + "\n\n\tQual serviço deseja realizar?"));
                         
                         switch(opcaoTf){
                             case 1:
-                                int codigo = 0;
+                                int codigo = 1;
                                 String nome = JOptionPane.showInputDialog("Qual o nome do recebedor do depósito?");
                                 String contaRecebe = JOptionPane.showInputDialog("Qual o número da conta que irá receber o dinheiro?");
                                 Float valor = Float.parseFloat(JOptionPane.showInputDialog("Qual valor deseja transferir?"));
@@ -64,10 +74,26 @@ public class Sistema_Bancario {
                                 break;
                                 
                             case 2:
-                                String tabela = "\tREGISTRO DE TRANSFERÊNCIAS\nCÓDIGO       VALOR       NOME        CONTA\n\n";
+                                String tabela = "<html>" +
+                                                "    <table border='1'>" +
+                                                "        <tr>" +
+                                                "            <th>CÓDIGO</th>" +
+                                                "            <th>VALOR</th>" +
+                                                "            <th>RECEBEDOR</th>" +
+                                                "            <th>CONTA</th>" +
+                                                "        </tr>";
                                 for(Transferencia tx:registro){
-                                    tabela += tx.codigo+"       "+tx.valor+"        "+tx.nome+"        "+tx.contaRecebe+"      ";
+                                    tabela += "<tr>"
+                                            + "     <td>"+tx.codigo+"</td>"
+                                            + "     <td>"+tx.valor+"</td>"
+                                            + "     <td>"+tx.nome+"</td>"
+                                            + "     <td>"+tx.contaRecebe+"</td>"
+                                            + "</tr>";
                                 }
+                                
+                                tabela += "     </table>"
+                                        + "</html>";
+                                
                                 JOptionPane.showMessageDialog(null, tabela);
                                 break;
                             
@@ -78,7 +104,7 @@ public class Sistema_Bancario {
                     }while(opcaoTf!=0);
                     break;
                     
-                case 4:
+                case 5:
                     if(visuSaldo){
                         saldoMostrado = "****";
                         textoVisuSaldo = "Mostrar saldo";
@@ -89,13 +115,23 @@ public class Sistema_Bancario {
                         textoVisuSaldo = "Esconder saldo";
                         visuSaldo = true;
                     }
-                    
-            }
+                }
             
         }while(opcao!=0);
     }
     
-    public class Transferencia{
+    private class Conta{
+        int numConta, senha;
+        String nomeMeliante;
+
+        public Conta(int numConta, int senha, String nomeMeliante) {
+            this.numConta = numConta;
+            this.senha = senha;
+            this.nomeMeliante = nomeMeliante;
+        }
+    }
+    
+    private class Transferencia{
         int codigo;
         String nome, contaRecebe;
         float valor;
@@ -105,10 +141,20 @@ public class Sistema_Bancario {
             this.contaRecebe = contaRecebe;
             this.valor = valor;
         }
-        
-        
     }
+        
+    private class Transacao{
+        int codigo;
+        String tipoOperacao;
+        float valor;
 
+        public Transacao(int codigo, String tipoOperacao, float valor) {
+            this.codigo = codigo;
+            this.tipoOperacao = tipoOperacao;
+            this.valor = valor;
+        }
+    }
+    
     public static void main(String[] args) {
         Sistema_Bancario sis = new Sistema_Bancario();
     }
