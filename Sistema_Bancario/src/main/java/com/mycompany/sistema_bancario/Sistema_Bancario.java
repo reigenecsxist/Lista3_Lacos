@@ -110,25 +110,38 @@ public class Sistema_Bancario {
                                                         switch(opcao[2]){
                                                             case 1:
                                                                 int codigo = 1;
-                                                                String nome = JOptionPane.showInputDialog("Qual o nome do recebedor do depósito?");
-                                                                String contaRecebe = JOptionPane.showInputDialog("Qual o número da conta que irá receber o dinheiro?");
-                                                                //implementar a transferência para contas existentes
-                                                                Float valorTf = Float.parseFloat(JOptionPane.showInputDialog("Qual valor deseja transferir?"));
-
-                                                                if(valorTf>ct.saldo){
-                                                                    JOptionPane.showMessageDialog(null, "O valor que deseja transferir é maior que o saldo disponível.");
-                                                                    break;
-                                                                }
-                                                                else ct.saldo -= valorTf;
-
-                                                                Transferencia tf = new Transferencia(codigo++, nome, contaRecebe, valorTf);
-                                                                registro.add(tf);
+                                                                int contaRecebe = Integer.parseInt(JOptionPane.showInputDialog("Qual o número da conta que irá receber o dinheiro?"));
                                                                 
-                                                                Transacao trDeposito4 = new Transacao(codigoOp++, "Transferência", valorTf, ct.numConta, ct.senha, ct.nomeMeliante, ct.saldo);
-                                                                extrato.add(trDeposito4);
+                                                                for(Conta ctTf : contas){//impossibilitar transferir pra si mesmo
+                                                                    if(contaRecebe==ctTf.numConta){
+                                                                        Float valorTf = Float.parseFloat(JOptionPane.showInputDialog("Qual valor deseja transferir?"));
+                                                                        if(valorTf>ct.saldo){
+                                                                            JOptionPane.showMessageDialog(null, "O valor que deseja transferir é maior que o saldo disponível.");
+                                                                        }
+                                                                        else{
+                                                                            int opTf = JOptionPane.showConfirmDialog(null, 
+                                                                                    "Deseja transferir $"+valorTf+" para a conta de "+ctTf.nomeMeliante+"?", "Transferir?", 1, 3);//colocar pra aparecer só sim ou não
+                                                                            
+                                                                            if(opTf==JOptionPane.YES_OPTION){
+                                                                                ctTf.saldo += valorTf;
+                                                                                ct.saldo -= valorTf;
+
+                                                                                JOptionPane.showMessageDialog(null, "O valor de $"+valorTf+" foi transferido para a conta "+contaRecebe+" de"
+                                                                                        + " titularidade de "+ctTf.nomeMeliante+" com sucesso!\n\nSeu saldo atual: $"+ct.saldo);
+
+                                                                                Transferencia tf = new Transferencia(codigo++, ctTf.nomeMeliante, contaRecebe, valorTf);
+                                                                                registro.add(tf);
+                                                                                Transacao trDeposito4 = new Transacao(codigoOp++, "Transferência", valorTf, ct.numConta, ct.senha, ct.nomeMeliante, ct.saldo);
+                                                                                extrato.add(trDeposito4);
+                                                                            }
+                                                                            else JOptionPane.showMessageDialog(null, "Transferência cancelada.");
+                                                                            
+                                                                        }
+                                                                    }
+                                                                }
                                                                 break;
 
-                                                            case 2:
+                                                            case 2://criar um registro no extrato de quem recebe; somente poder ver o próprio registro de transferências
                                                                 String tabelaTransferencias = "<html>" +
                                                                                 "    <table border='1'>" +
                                                                                 "        <tr>" +
@@ -259,10 +272,11 @@ public class Sistema_Bancario {
     
     private class Transferencia{
         int codigo;
-        String nome, contaRecebe;
+        String nome; 
+        int contaRecebe;
         float valor;
 
-        public Transferencia(int codigo, String nome, String contaRecebe, float valor) {
+        public Transferencia(int codigo, String nome, int contaRecebe, float valor) {
             this.nome = nome;
             this.contaRecebe = contaRecebe;
             this.valor = valor;
