@@ -1,15 +1,15 @@
 package com.mycompany.sistema_bancario;
 
 import java.util.ArrayList;
+import java.util.Random;
 import javax.swing.JOptionPane;
 
 public class Sistema_Bancario {
 
     public Sistema_Bancario() {
         
-        boolean visuSaldo=true;
-        float saque, saldo=0;
-        String saldoMostrado="0.00", textoVisuSaldo="Esconder saldo";
+        boolean visuSaldo = true;
+        String textoVisuSaldo="Esconder saldo";
         int[] opcao = {0, 0, 0};
         
         ArrayList<Transferencia> registro = new ArrayList<>();
@@ -17,138 +17,228 @@ public class Sistema_Bancario {
         ArrayList<Conta> contas = new ArrayList<>();
         
         do{
-            opcao[0] = Integer.parseInt(JOptionPane.showInputDialog("BANCO GMM\n\n\t"
-                    + "1 - Acessar minha conta\n\t"
-                    + "2 - Criar conta"));
+            opcao[0] = Integer.parseInt(JOptionPane.showInputDialog("1 - Acessar minha conta\n2 - Criar conta\n\n"
+                    + "10 - Esqueci meu número da conta\n20 - Esqueci minha senha\n\n0 - Sair do programa"));
+            String nomeEsquecido;
+            String senhaEsquecida;
+            int numContaEsquecido;
             
             switch(opcao[0]){
                 case 1:
                     int conta = Integer.parseInt(JOptionPane.showInputDialog("Digite o número da conta:"));
                     
-                    for(Conta ct : contas){
-                        if(conta==ct.numConta){
-                            int senha = Integer.parseInt(JOptionPane.showInputDialog("Digite sua senha:"));
-                            
-                            for(Conta ct2 : contas){
-                                if(senha==ct2.senha){
+                    if(!contas.isEmpty()){
+                        for(Conta ct : contas){
+                            if(conta==ct.numConta){
+                                String senha = JOptionPane.showInputDialog("Digite sua senha:");
+
+                                if(senha.equals(ct.senha)){
+                                    String saldoMostrado = "";
+                                    int codigoOp = 0;
+                                    
                                     do{
-                
-                                        opcao[1] = Integer.parseInt(JOptionPane.showInputDialog("BANCO GMM\n\n"
-                                            + "Saldo: "+saldoMostrado+"\n\n\t"
-                                            + "1 - Depósito\n\t"
-                                            + "2 - Saque\n\t"
-                                            + "3 - Extrato\n"
-                                            + "4 - Transferências\n\t"
-                                            + "5 - "+textoVisuSaldo+"\n\n\t"
-                                            + "0 - Sair\n\n"
-                                            + "Qual serviço deseja realizar?"));
+                                        if(visuSaldo) saldoMostrado = ""+ct.saldo;
+                                        
+                                        opcao[1] = Integer.parseInt(JOptionPane.showInputDialog("Olá, "+ct.nomeMeliante
+                                            + "\n\nSaldo: "+saldoMostrado+""
+                                            + "\n\n1 - Depósito"
+                                            + "\n2 - Saque"
+                                            + "\n3 - Extrato"
+                                            + "\n4 - Transferências"
+                                            + "\n5 - "+textoVisuSaldo+""
+                                            + "\n\n0 - Sair da conta"
+                                            + "\n\nQual serviço deseja realizar?"));
 
-                                        switch(opcao[1]){
-                                            case 0:
-                                                break;
-                                            case 1:
-                                                saldo += Float.parseFloat(JOptionPane.showInputDialog("Qual valor deseja depositar?"));
-                                                saldoMostrado = ""+saldo;
-                                                break;
-                                            case 2:
-                                                saque = Float.parseFloat(JOptionPane.showInputDialog("Qual valor deseja sacar?"));
-                                                if(saque>saldo) JOptionPane.showMessageDialog(null, "O valor solicitado para saque é maior que o saldo disponível!");
-                                                else saldo -= saque;
-                                                saldoMostrado = ""+saldo;
-                                                break;
+                                            switch(opcao[1]){
+                                                case 0:
+                                                    break;
 
-                                            case 3:
+                                                case 1:
+                                                    float valorDep = Float.parseFloat(JOptionPane.showInputDialog("Qual valor deseja depositar?"));                                                    
+                                                    ct.saldo += valorDep;
+                                                                                                        
+                                                    Transacao trDeposito1 = new Transacao(codigoOp++, "Depósito", valorDep, ct.numConta, ct.senha, ct.nomeMeliante, ct.saldo);
+                                                    extrato.add(trDeposito1);
+                                                    
+                                                    break;
 
-                                                break;
-
-                                            case 4:
-
-                                                do{
-
-                                                    opcao[2] = Integer.parseInt(JOptionPane.showInputDialog("\tTranferências\n\n\t"
-                                                            + "1 - Realizar transferência\n\t"
-                                                            + "2 - Ver registro de transferências\n\t"
-                                                            + "0 - Voltar"
-                                                            + "\n\n\tQual serviço deseja realizar?"));
-
-                                                    switch(opcao[2]){
-                                                        case 1:
-                                                            int codigo = 1;
-                                                            String nome = JOptionPane.showInputDialog("Qual o nome do recebedor do depósito?");
-                                                            String contaRecebe = JOptionPane.showInputDialog("Qual o número da conta que irá receber o dinheiro?");
-                                                            Float valor = Float.parseFloat(JOptionPane.showInputDialog("Qual valor deseja transferir?"));
-
-                                                            if(valor>saldo){
-                                                                JOptionPane.showMessageDialog(null, "O valor que deseja transferir é maior que o saldo disponível.");
-                                                                break;
-                                                            }
-                                                            else saldo -= valor;
-
-                                                            Transferencia tf = new Transferencia(codigo++, nome, contaRecebe, valor);
-                                                            registro.add(tf);
-                                                            break;
-
-                                                        case 2:
-                                                            String tabela = "<html>" +
-                                                                            "    <table border='1'>" +
-                                                                            "        <tr>" +
-                                                                            "            <th>CÓDIGO</th>" +
-                                                                            "            <th>VALOR</th>" +
-                                                                            "            <th>RECEBEDOR</th>" +
-                                                                            "            <th>CONTA</th>" +
-                                                                            "        </tr>";
-                                                            for(Transferencia tx:registro){
-                                                                tabela += "<tr>"
-                                                                        + "     <td>"+tx.codigo+"</td>"
-                                                                        + "     <td>"+tx.valor+"</td>"
-                                                                        + "     <td>"+tx.nome+"</td>"
-                                                                        + "     <td>"+tx.contaRecebe+"</td>"
-                                                                        + "</tr>";
-                                                            }
-
-                                                            tabela += "     </table>"
-                                                                    + "</html>";
-
-                                                            JOptionPane.showMessageDialog(null, tabela);
-                                                            break;
-
-                                                        case 0:
-                                                            break;
+                                                case 2:
+                                                    float saque = Float.parseFloat(JOptionPane.showInputDialog("Qual valor deseja sacar?"));
+                                                    if(saque>ct.saldo) JOptionPane.showMessageDialog(null, "O valor solicitado para saque é maior que o saldo disponível!");
+                                                    else {
+                                                        ct.saldo -= saque;
+                                                        
+                                                        Transacao trDeposito2 = new Transacao(codigoOp++, "Saque", saque, ct.numConta, ct.senha, ct.nomeMeliante, ct.saldo);
+                                                        extrato.add(trDeposito2);
                                                     }
+                                                    break;
 
-                                                }while(opcao[2]!=0);
+                                                case 3:
+                                                    String tabelaExtrato = "<html>" +
+                                                                                "    <table border='1'>" +
+                                                                                "        <tr>" +
+                                                                                "            <th>CÓDIGO</th>" +
+                                                                                "            <th>OPERAÇÃO</th>" +
+                                                                                "            <th>VALOR</th>" +
+                                                                                "        </tr>";
+                                                                for(Transacao ex:extrato){
+                                                                    if(ex.numConta==ct.numConta){
+                                                                        tabelaExtrato += "<tr>"
+                                                                                + "     <td>"+ex.codigo+"</td>"
+                                                                                + "     <td>"+ex.tipoOperacao+"</td>"
+                                                                                + "     <td>"+ex.valor+"</td>"
+                                                                                + "</tr>";
+                                                                    }
+                                                                }
+
+                                                                tabelaExtrato += "     </table>"
+                                                                        + "</html>";
+
+                                                                JOptionPane.showMessageDialog(null, tabelaExtrato);
+                                                    
+                                                    
+                                                    break;
+
+                                                case 4:
+                                                    do{
+                                                        opcao[2] = Integer.parseInt(JOptionPane.showInputDialog("Tranferências\n\n"
+                                                                + "1 - Realizar transferência\n"
+                                                                + "2 - Ver registro de transferências\n"
+                                                                + "0 - Voltar"
+                                                                + "\n\nQual serviço deseja realizar?"));
+
+                                                        switch(opcao[2]){
+                                                            case 1:
+                                                                int codigo = 1;
+                                                                String nome = JOptionPane.showInputDialog("Qual o nome do recebedor do depósito?");
+                                                                String contaRecebe = JOptionPane.showInputDialog("Qual o número da conta que irá receber o dinheiro?");
+                                                                //implementar a transferência para contas existentes
+                                                                Float valorTf = Float.parseFloat(JOptionPane.showInputDialog("Qual valor deseja transferir?"));
+
+                                                                if(valorTf>ct.saldo){
+                                                                    JOptionPane.showMessageDialog(null, "O valor que deseja transferir é maior que o saldo disponível.");
+                                                                    break;
+                                                                }
+                                                                else ct.saldo -= valorTf;
+
+                                                                Transferencia tf = new Transferencia(codigo++, nome, contaRecebe, valorTf);
+                                                                registro.add(tf);
+                                                                
+                                                                Transacao trDeposito4 = new Transacao(codigoOp++, "Transferência", valorTf, ct.numConta, ct.senha, ct.nomeMeliante, ct.saldo);
+                                                                extrato.add(trDeposito4);
+                                                                break;
+
+                                                            case 2:
+                                                                String tabelaTransferencias = "<html>" +
+                                                                                "    <table border='1'>" +
+                                                                                "        <tr>" +
+                                                                                "            <th>CÓDIGO</th>" +
+                                                                                "            <th>VALOR</th>" +
+                                                                                "            <th>RECEBEDOR</th>" +
+                                                                                "            <th>CONTA</th>" +
+                                                                                "        </tr>";
+                                                                for(Transferencia tx:registro){
+                                                                    tabelaTransferencias += "<tr>"
+                                                                            + "     <td>"+tx.codigo+"</td>"
+                                                                            + "     <td>"+tx.valor+"</td>"
+                                                                            + "     <td>"+tx.nome+"</td>"
+                                                                            + "     <td>"+tx.contaRecebe+"</td>"
+                                                                            + "</tr>";
+                                                                }
+
+                                                                tabelaTransferencias += "     </table>"
+                                                                        + "</html>";
+
+                                                                JOptionPane.showMessageDialog(null, tabelaTransferencias);
+                                                                break;
+
+                                                            case 0:
+                                                                break;
+                                                        }
+                                                    }while(opcao[2]!=0);
                                                 break;
 
-                                            case 5:
-                                                if(visuSaldo){
-                                                    saldoMostrado = "****";
-                                                    textoVisuSaldo = "Mostrar saldo";
-                                                    visuSaldo = false;
-                                                }
-                                                else{
-                                                    saldoMostrado = ""+saldo;
-                                                    textoVisuSaldo = "Esconder saldo";
-                                                    visuSaldo = true;
-                                                }
+                                                case 5:
+
+                                                    if(visuSaldo){
+                                                        saldoMostrado = "****";
+                                                        textoVisuSaldo = "Mostrar saldo";
+                                                        visuSaldo = false;
+                                                    }
+                                                    else{
+                                                        saldoMostrado = ""+ct.saldo;
+                                                        textoVisuSaldo = "Esconder saldo";
+                                                        visuSaldo = true;
+                                                    }
+                                                break;
                                             }
 
-                                    }while(opcao[1]!=0);
+                                        }while(opcao[1]!=0);
+                                    }
+                                else JOptionPane.showMessageDialog(null, "Senha incorreta");
+
                                 }
+                            else if((contas.indexOf(ct)==contas.size()) && conta!=ct.numConta) JOptionPane.showMessageDialog(null, "Conta inexistente."); /*
+                            Se o for-each estiver na última posição da lista e ainda assim o número da conta for difente do que está no objeto, aí sim a conta é inexistente.
+                            */                        
                             }
-                            JOptionPane.showConfirmDialog(null, "Senha incorreta");
-                        }
                     }
-                    JOptionPane.showConfirmDialog(null, "Conta inexistente.");
+                    else JOptionPane.showMessageDialog(null, "Conta inexistente.");
                     break;
                     
                 case 2:
-                    int numConta, senha;
-                    String nomeMeliante;//continue aqui. Cadastro.
-                                        
+                    String nome = JOptionPane.showInputDialog("Insira o nome do titular da conta:");
+                    String senha = JOptionPane.showInputDialog("Digite uma senha numérica de 4 dígitos para a conta:");
+                    
+                    while(senha.length()>4||senha.length()<4||!senha.matches("\\d+")){
+                        JOptionPane.showMessageDialog(null, "Senha inválida");
+                        senha = JOptionPane.showInputDialog("Digite uma senha numérica de 4 dígitos para a conta:");
+                    }
+                    
+                    Random random = new Random();
+                    int numero = random.nextInt(9000) + 1000;
+                    for(Conta ct2 : contas){
+                        if(numero==ct2.numConta) numero = random.nextInt(9000) + 1000;
+                    }
+                    
+                    float saldo = 0;
+                    
+                    Conta ct = new Conta(numero, senha, nome, saldo);
+                    contas.add(ct);
+                    
+                    JOptionPane.showMessageDialog(null, "CONTA CRIADA COM SUCESSO!\n\nTITULAR DA CONTA: "+nome+"\nNÚMERO DA CONTA: "+numero);
+                    
+                    break;
+                    
+                case 10:
+                    nomeEsquecido = JOptionPane.showInputDialog("-RECUPERAÇÃO DE CONTA-\n\nInsira o nome do titular da conta:");
+                    senhaEsquecida = JOptionPane.showInputDialog("-RECUPERAÇÃO DE CONTA-\n\nInsira a senha da conta:");
+                    
+                    for(Conta ct2 : contas){
+                        if(nomeEsquecido.equals(ct2.nomeMeliante) && senhaEsquecida.equals(ct2.senha)) JOptionPane.showMessageDialog(null, "-RECUPERAÇÃO DE CONTA-\n\n"
+                                + "O número da conta é: "+ct2.numConta);
+                    }
+                    
+                    break;
+                    
+                case 20:
+                    nomeEsquecido = JOptionPane.showInputDialog("-RECUPERAÇÃO DE CONTA-\n\nInsira o nome do titular da conta:");
+                    numContaEsquecido = Integer.parseInt(JOptionPane.showInputDialog("-RECUPERAÇÃO DE CONTA-\n\nInsira o número da conta:"));
+                    
+                    for(Conta ct2 : contas){
+                        if(nomeEsquecido.equals(ct2.nomeMeliante) && numContaEsquecido==ct2.numConta) JOptionPane.showMessageDialog(null, "-RECUPERAÇÃO DE CONTA-\n\n"
+                                + "A senha da conta é: "+ct2.senha);
+                    }
+                    
+                    break;
+                    
+                case 0:
+                    System.exit(0);
                     break;
                     
                 default:
-                    JOptionPane.showConfirmDialog(null, "Opção inválida.");
+                    JOptionPane.showMessageDialog(null, "Opção inválida.");
+            
             }
             
         }while(opcao[0]!=0);
@@ -156,10 +246,11 @@ public class Sistema_Bancario {
     }
     
     public class Conta{
-        int numConta, senha;
-        String nomeMeliante;
+        int numConta;
+        String senha, nomeMeliante;
+        float saldo=0;
 
-        public Conta(int numConta, int senha, String nomeMeliante) {
+        public Conta(int numConta, String senha, String nomeMeliante, float saldo) {
             this.numConta = numConta;
             this.senha = senha;
             this.nomeMeliante = nomeMeliante;
@@ -178,12 +269,13 @@ public class Sistema_Bancario {
         }
     }
         
-    private class Transacao{
+    private class Transacao extends Conta{
         int codigo;
         String tipoOperacao;
         float valor;
 
-        public Transacao(int codigo, String tipoOperacao, float valor) {
+        public Transacao(int codigo, String tipoOperacao, float valor, int numConta, String senha, String nomeMeliante, float saldo) {
+            super(numConta, senha, nomeMeliante, saldo);
             this.codigo = codigo;
             this.tipoOperacao = tipoOperacao;
             this.valor = valor;
