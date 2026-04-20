@@ -15,19 +15,15 @@ public class Exercicio5 {
     public Exercicio5() {
         
         int n = Integer.parseInt(JOptionPane.showInputDialog("Insira um número:"));
-        int[] par = new int[n];
-        int[] impar = new int[n];
         String nsPar = "";
         String nsImpar = "";
         
         for(int i=0; i<n; i++){
             if(i%2==0){
-                par[i] += i;
                 nsPar += i+", ";
                 if(i%n==0) nsPar += "\n";
             }
             else{
-                impar[i]+=i;
                 nsImpar += i+", ";
                 if(i%100==0) nsImpar += "\n";
                 

@@ -4,6 +4,8 @@
  */
 package com.mycompany.lista3_lacos;
 
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Gabriel de Moura
@@ -11,10 +13,17 @@ package com.mycompany.lista3_lacos;
 public class Exercicio3 {
 
     public Exercicio3() {
+        int n = Integer.parseInt(JOptionPane.showInputDialog("Digite um número:"));
+        int total=0;
         
+        for(int i=0;i<=n;i++){
+            total+=i;
+        }
+        
+        JOptionPane.showMessageDialog(null, "A soma dos números de 1 até "+n+" é igual a "+total);
     }
     
     public static void main(String[] args) {
-        
+        Exercicio3 ex3 = new Exercicio3();
     }
 }
