@@ -13,7 +13,6 @@ public class Exercicio11 {
 
     public Exercicio11() {
         
-        float quociente = 10;
         int quantDigitos = 0;
         float numeroTeste = Float.parseFloat(JOptionPane.showInputDialog("Digite o número para verificação:"));
         
@@ -21,7 +20,7 @@ public class Exercicio11 {
         else if(numeroTeste<0) JOptionPane.showMessageDialog(null, "Somente números positivos!");
         else{
             while(numeroTeste>=1){
-                numeroTeste/=quociente;
+                numeroTeste/=10;
                 quantDigitos++;
             }
             JOptionPane.showMessageDialog(null, "O número inserido possui "+quantDigitos+" dígito(s).");
