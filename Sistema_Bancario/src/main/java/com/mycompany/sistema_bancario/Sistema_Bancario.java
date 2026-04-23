@@ -56,6 +56,7 @@ public class Sistema_Bancario {
                                                 case 1:
                                                     float valorDep = Float.parseFloat(JOptionPane.showInputDialog("Qual valor deseja depositar?"));                                                    
                                                     ct.saldo += valorDep;
+                                                    JOptionPane.showMessageDialog(null, "Depósito realizado com sucesso!");
                                                                                                         
                                                     Transacao trDeposito1 = new Transacao(codigoOp++, "Depósito", valorDep, ct.numConta, ct.senha, ct.nomeMeliante, ct.saldo);
                                                     extrato.add(trDeposito1);
@@ -67,6 +68,7 @@ public class Sistema_Bancario {
                                                     if(saque>ct.saldo) JOptionPane.showMessageDialog(null, "O valor solicitado para saque é maior que o saldo disponível!");
                                                     else {
                                                         ct.saldo -= saque;
+                                                        JOptionPane.showMessageDialog(null, "Saque realizado com sucesso!");
                                                         
                                                         Transacao trDeposito2 = new Transacao(codigoOp++, "Saque", saque, ct.numConta, ct.senha, ct.nomeMeliante, ct.saldo);
                                                         extrato.add(trDeposito2);
@@ -112,36 +114,42 @@ public class Sistema_Bancario {
                                                                 int codigo = 1;
                                                                 int contaRecebe = Integer.parseInt(JOptionPane.showInputDialog("Qual o número da conta que irá receber o dinheiro?"));
                                                                 
-                                                                for(Conta ctTf : contas){//impossibilitar transferir pra si mesmo
-                                                                    if(contaRecebe==ctTf.numConta){
-                                                                        Float valorTf = Float.parseFloat(JOptionPane.showInputDialog("Qual valor deseja transferir?"));
-                                                                        if(valorTf>ct.saldo){
-                                                                            JOptionPane.showMessageDialog(null, "O valor que deseja transferir é maior que o saldo disponível.");
-                                                                        }
-                                                                        else{
-                                                                            int opTf = JOptionPane.showConfirmDialog(null, 
-                                                                                    "Deseja transferir $"+valorTf+" para a conta de "+ctTf.nomeMeliante+"?", "Transferir?", 1, 3);//colocar pra aparecer só sim ou não
-                                                                            
-                                                                            if(opTf==JOptionPane.YES_OPTION){
-                                                                                ctTf.saldo += valorTf;
-                                                                                ct.saldo -= valorTf;
-
-                                                                                JOptionPane.showMessageDialog(null, "O valor de $"+valorTf+" foi transferido para a conta "+contaRecebe+" de"
-                                                                                        + " titularidade de "+ctTf.nomeMeliante+" com sucesso!\n\nSeu saldo atual: $"+ct.saldo);
-
-                                                                                Transferencia tf = new Transferencia(codigo++, ctTf.nomeMeliante, contaRecebe, valorTf);
-                                                                                registro.add(tf);
-                                                                                Transacao trDeposito4 = new Transacao(codigoOp++, "Transferência", valorTf, ct.numConta, ct.senha, ct.nomeMeliante, ct.saldo);
-                                                                                extrato.add(trDeposito4);
+                                                                if(contaRecebe!=ct.numConta){
+                                                                    for(Conta ctTf : contas){
+                                                                        if(contaRecebe==ctTf.numConta){
+                                                                            Float valorTf = Float.parseFloat(JOptionPane.showInputDialog("Qual valor deseja transferir?"));
+                                                                            if(valorTf>ct.saldo){
+                                                                                JOptionPane.showMessageDialog(null, "O valor que deseja transferir é maior que o saldo disponível.");
                                                                             }
-                                                                            else JOptionPane.showMessageDialog(null, "Transferência cancelada.");
-                                                                            
+                                                                            else{
+                                                                                int opTf = JOptionPane.showConfirmDialog(null, 
+                                                                                        "Deseja transferir $"+valorTf+" para a conta de "+ctTf.nomeMeliante+"?", "Transferir?", JOptionPane.YES_NO_OPTION, 3);//colocar pra aparecer só sim ou não
+
+                                                                                if(opTf==JOptionPane.YES_OPTION){
+                                                                                    ctTf.saldo += valorTf;
+                                                                                    ct.saldo -= valorTf;
+
+                                                                                    JOptionPane.showMessageDialog(null, "O valor de $"+valorTf+" foi transferido para a conta "+contaRecebe+" de"
+                                                                                            + " titularidade de "+ctTf.nomeMeliante+" com sucesso!\n\nSeu saldo atual: $"+ct.saldo);
+
+                                                                                    Transferencia tf = new Transferencia(codigo++, ctTf.nomeMeliante, ct.numConta, contaRecebe, valorTf);
+                                                                                    registro.add(tf);
+                                                                                    Transacao trDepositoMeu = new Transacao(codigoOp++, "Transferência Enviada", valorTf, ct.numConta, ct.senha, ct.nomeMeliante, ct.saldo);
+                                                                                    extrato.add(trDepositoMeu);//no extrato de quem envia, mas precisa estar no de quem recebe também
+                                                                                    Transacao trDepositoDele = new Transacao(codigoOp++, "Transferência Recebida", valorTf, ctTf.numConta, ctTf.senha, ctTf.nomeMeliante, ctTf.saldo);
+                                                                                    extrato.add(trDepositoDele);                                                                                    
+                                                                                }
+                                                                                else JOptionPane.showMessageDialog(null, "Transferência cancelada.");
+
+                                                                            }
                                                                         }
+                                                                        else if(contaRecebe!=ctTf.numConta&&contas.indexOf(ctTf)==contas.size()) JOptionPane.showMessageDialog(null, "Conta não encontrada.");
                                                                     }
                                                                 }
+                                                                else JOptionPane.showMessageDialog(null, "Conta inválida!");
                                                                 break;
 
-                                                            case 2://criar um registro no extrato de quem recebe; somente poder ver o próprio registro de transferências
+                                                            case 2:
                                                                 String tabelaTransferencias = "<html>" +
                                                                                 "    <table border='1'>" +
                                                                                 "        <tr>" +
@@ -151,12 +159,14 @@ public class Sistema_Bancario {
                                                                                 "            <th>CONTA</th>" +
                                                                                 "        </tr>";
                                                                 for(Transferencia tx:registro){
-                                                                    tabelaTransferencias += "<tr>"
-                                                                            + "     <td>"+tx.codigo+"</td>"
-                                                                            + "     <td>"+tx.valor+"</td>"
-                                                                            + "     <td>"+tx.nome+"</td>"
-                                                                            + "     <td>"+tx.contaRecebe+"</td>"
-                                                                            + "</tr>";
+                                                                    if(tx.contaEnvia==ct.numConta){//somente poder ver o próprio registro de transferências
+                                                                        tabelaTransferencias += "<tr>"
+                                                                                + "     <td>"+tx.codigo+"</td>"
+                                                                                + "     <td>"+tx.valor+"</td>"
+                                                                                + "     <td>"+tx.nome+"</td>"
+                                                                                + "     <td>"+tx.contaRecebe+"</td>"
+                                                                                + "</tr>";
+                                                                    }
                                                                 }
 
                                                                 tabelaTransferencias += "     </table>"
@@ -248,7 +258,7 @@ public class Sistema_Bancario {
                 case 0:
                     System.exit(0);
                     break;
-                    
+                
                 default:
                     JOptionPane.showMessageDialog(null, "Opção inválida.");
             
@@ -272,12 +282,14 @@ public class Sistema_Bancario {
     
     private class Transferencia{
         int codigo;
-        String nome; 
+        String nome;
+        int contaEnvia;
         int contaRecebe;
         float valor;
 
-        public Transferencia(int codigo, String nome, int contaRecebe, float valor) {
+        public Transferencia(int codigo, String nome,int contaEnvia, int contaRecebe, float valor) {
             this.nome = nome;
+            this.contaEnvia = contaEnvia;
             this.contaRecebe = contaRecebe;
             this.valor = valor;
         }
