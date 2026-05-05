@@ -10,9 +10,9 @@ import java.util.Map;
  *
  * @author Usuário do Windows
  */
-public class MisturaCoresObjeto {
+public class MisturaCoresPOO {
 
-    public MisturaCoresObjeto() {
+    public MisturaCoresPOO() {
         
         int opcao=-1;
         
@@ -72,6 +72,6 @@ public class MisturaCoresObjeto {
     }
     
     public static void main(String[] args) {
-        MisturaCoresObjeto mch = new MisturaCoresObjeto();
+        MisturaCoresPOO mch = new MisturaCoresPOO();
     }
 }
